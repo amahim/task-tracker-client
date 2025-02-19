@@ -12,13 +12,21 @@ import AuthProvider from './Components/Provider/AuthProvider';
 import Login from './Components/Users/Login';
 import Register from './Components/Users/Register';
 import PrivateRoute from './Components/Routes/PrivateRoute';
+import Tasks from './Components/Tasks/Tasks';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: 
       <Home/>
-  
+  },
+  {
+    path:"tasks",
+    element:
+    <PrivateRoute>
+      <Tasks></Tasks>
+    </PrivateRoute>
+    
   },
   {
     path:"login",

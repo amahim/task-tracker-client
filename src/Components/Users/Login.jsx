@@ -33,7 +33,7 @@ const Login = () => {
 
         // Store the user in the database
         axios
-          .post("http://localhost:5000/users", userInfo)
+          .post("http://localhost:4000/users", userInfo)
           .then((res) => {
             if (res.data.insertedId) {
               // console.log("User stored in database:", res.data);
@@ -71,9 +71,9 @@ const Login = () => {
   };
 
   return (
-    <div className="md:w-2/5 mx-auto w-4/5">
+    <div className="md:w-2/5 mx-auto w-4/5 mt-10">
       <div>
-        <h1 className="text-center font-medium text-xl text-[#262522]">
+        <h1 className="text-center font-medium text-xl">
           Login to your account
         </h1>
       </div>

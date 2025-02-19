@@ -69,7 +69,7 @@ const Register = () => {
               };
 
               axios
-                .post("http://localhost:5000/users", userInfo)
+                .post("http://localhost:4000/users", userInfo)
                 .then((res) => {
                   if (res.data.insertedId) {
                     toast.success("Registration Successful!");
@@ -89,9 +89,9 @@ const Register = () => {
   };
 
   return (
-    <div className="md:w-2/5 mx-auto w-4/5">
+    <div className="md:w-2/5 mx-auto w-4/5 mt-10">
       <div>
-        <h1 className=" text-center text-[#262522] font-medium text-xl">
+        <h1 className=" text-center font-medium text-xl">
           Register your account
         </h1>
       </div>
