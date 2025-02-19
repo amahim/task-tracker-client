@@ -6,16 +6,36 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import Home from './Components/Home/Home';
+import { Toaster } from 'react-hot-toast';
+import AuthProvider from './Components/Provider/AuthProvider';
+import Login from './Components/Users/Login';
+import Register from './Components/Users/Register';
+import PrivateRoute from './Components/Routes/PrivateRoute';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>Hello world!</div>,
+    element: 
+      <Home/>
+  
   },
+  {
+    path:"login",
+    element:<Login></Login>
+  },
+  {
+    path:"register",
+    element:<Register></Register>
+  }
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <AuthProvider>
+      <Toaster/>
     <RouterProvider router={router} />
+    </AuthProvider>
+    
   </StrictMode>,
 )

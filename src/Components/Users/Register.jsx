@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import { AuthContext } from "../Provider/AuthProvider";
 import axios from "axios";
+import { AuthContext } from "../Provider/AuthProvider";
 const img_hosting_key = import.meta.env.VITE_image_api_key;
 const img_hosting_api = `https://api.imgbb.com/1/upload?key=${img_hosting_key}`;
 
@@ -69,7 +69,7 @@ const Register = () => {
               };
 
               axios
-                .post("https://flex-feet-server.vercel.app/users", userInfo)
+                .post("http://localhost:5000/users", userInfo)
                 .then((res) => {
                   if (res.data.insertedId) {
                     toast.success("Registration Successful!");

@@ -4,8 +4,8 @@ import { FaGoogle } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signInWithPopup, getAuth, GoogleAuthProvider } from "firebase/auth";
 import toast from "react-hot-toast";
-import { AuthContext } from "../Provider/AuthProvider";
 import axios from "axios";
+import { AuthContext } from "../Provider/AuthProvider";
 
 const Login = () => {
   const { setUser, userSignIn } = useContext(AuthContext);
@@ -33,7 +33,7 @@ const Login = () => {
 
         // Store the user in the database
         axios
-          .post("https://flex-feet-server.vercel.app/users", userInfo)
+          .post("http://localhost:5000/users", userInfo)
           .then((res) => {
             if (res.data.insertedId) {
               // console.log("User stored in database:", res.data);
