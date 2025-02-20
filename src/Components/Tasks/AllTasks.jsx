@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import useTasks from '../Hooks/useTasks';
 import { AuthContext } from '../Provider/AuthProvider';
 import Todo from './Todo';
@@ -8,18 +8,26 @@ import Done from './Done';
 const AllTasks = () => {
     const { user } = useContext(AuthContext);
     const [tasks, refetch] = useTasks();
+    const [todoTasks, setTodoTasks] = useState([]);
 
-    const myTasks = tasks?.filter(task => task.addedBy === user?.email);
+    useEffect(() => {
+        const myTasks = tasks?.filter(task => task.addedBy === user?.email);
+        const filteredTodoTasks = myTasks?.filter(task => task.category === "To-Do");
+        setTodoTasks(filteredTodoTasks || []);
+    }, [tasks, user]);
 
     // Filter tasks by category
-    const todoTasks = myTasks?.filter(task => task.category === "To-Do");
-    const inProgressTasks = myTasks?.filter(task => task.category === "In Progress");
-    const doneTasks = myTasks?.filter(task => task.category === "Done");
+    const inProgressTasks = tasks?.filter(task => task.category === "In Progress");
+    const doneTasks = tasks?.filter(task => task.category === "Done");
 
     return (
         <div className=" flex flex-col md:flex-row gap-4 md:justify-between justify-center">
             {/* To-Do Tasks */}
-            <Todo tasks={todoTasks} refetch={refetch}/>
+            <Todo 
+                tasks={todoTasks} 
+                setTasks={setTodoTasks} 
+                refetch={refetch}
+            />
 
             {/* In Progress Tasks */}
             <InProgress tasks={inProgressTasks} refetch={refetch}/>
