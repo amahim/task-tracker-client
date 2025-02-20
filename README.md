@@ -1,8 +1,41 @@
-# React + Vite
+# Task Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern task management application that allows users to organize their tasks in a Kanban-style board with drag-and-drop functionality. Users can create, update, and track tasks across different stages: To-Do, In Progress, and Done.
 
-Currently, two official plugins are available:
+## Live Links
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+https://tasktrackerbymahim.netlify.app
+
+## Features
+
+- User authentication with email/password and Google sign-in
+- Drag-and-drop task management
+- Real-time task updates
+- Responsive design
+- Task categorization (To-Do, In Progress, Done)
+- Task description and timestamp tracking
+
+## Technologies Used
+
+### Frontend
+- React.js with Vite
+- Tailwind CSS
+- Firebase Authentication
+- Framer Motion
+- @hello-pangea/dnd (Drag and Drop)
+- Axios
+- React Query
+- React Hook Form
+- React Hot Toast
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Cors
+- Dotenv
+
+## Installation
+
+1. Clone the repository both client and server
+2. Run npm i on both folder's command prompt
