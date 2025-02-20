@@ -8,11 +8,12 @@ import { FaTasks } from "react-icons/fa";
 import { AuthContext } from "../Provider/AuthProvider";
 import { BiTask } from "react-icons/bi";
 import AllTasks from "./AllTasks";
+import useTasks from "../Hooks/useTasks";
 const Tasks = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
   const {user} = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-
+  const [, refetch] = useTasks();
   // Function to handle form submission
   const onSubmit = async (data) => {
     if (!data.title || !data.category) {
@@ -32,6 +33,7 @@ const Tasks = () => {
       if (res.data.insertedId) {
         toast.success("Task added successfully!");
         reset();
+        refetch()
         setIsOpen(false); // Close modal after successful submission
       }
     } catch (error) {

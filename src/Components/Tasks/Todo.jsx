@@ -4,18 +4,58 @@ import { FaEye, FaPen, FaRegClock } from 'react-icons/fa';
 import { ImTarget } from 'react-icons/im';
 import { MdDeleteForever } from 'react-icons/md';
 import { TbSubtask } from 'react-icons/tb';
+import toast from 'react-hot-toast';
+import axios from 'axios';
 
-const Todo = ({ tasks , refetch}) => {
+const Todo = ({ tasks, refetch }) => {
     const [selectedTask, setSelectedTask] = useState(null);
+    const [updatedTitle, setUpdatedTitle] = useState("");
+    const [updatedDescription, setUpdatedDescription] = useState("");
 
-    // Function to open modal
+    // Function to open modal and pre-fill input values
     const openModal = (task) => {
         setSelectedTask(task);
+        setUpdatedTitle(task.title);  // Set the default value for the title
+        setUpdatedDescription(task.description || "");  // Set the default value for description
     };
 
     // Function to close modal
     const closeModal = () => {
         setSelectedTask(null);
+    };
+
+    // Handle title and description changes
+    const handleTitleChange = (e) => setUpdatedTitle(e.target.value);
+    const handleDescriptionChange = (e) => setUpdatedDescription(e.target.value);
+
+    // Handle updating the task
+    const handleUpdate = () => {
+        axios
+            .put(`http://localhost:5000/tasks/${selectedTask._id}`, {
+                title: updatedTitle,
+                description: updatedDescription
+            })
+            .then((res) => {
+                toast.success("Task updated successfully");
+                refetch();  // Refetch tasks to reflect the updated task
+                closeModal();  // Close the modal after updating
+            })
+            .catch((err) => {
+                toast.error("Failed to update task");
+            });
+    };
+
+    //   delete
+    const handleDelete = (taskId) => {
+        axios
+            .delete(`http://localhost:5000/tasks/${taskId}`)
+            .then((res) => {
+                refetch();
+                toast.success("Task deleted successfully");
+            })
+            .catch((err) => {
+                toast.error("Failed to delete task");
+            });
     };
 
     return (
@@ -30,7 +70,7 @@ const Todo = ({ tasks , refetch}) => {
                 {tasks?.length > 0 ? (
                     <ul>
                         {tasks.map(task => (
-                            <div key={task._id} className=' border-2 border-red-200 bg-slate-200 p-2 rounded-md  flex gap-2 flex-col shadow-[0px_4px_10px_rgba(239,68,68,10)] mb-4'>
+                            <div key={task._id} className='border-2 border-red-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col shadow-[0px_4px_10px_rgba(239,68,68,10)] mb-4'>
 
                                 {/* Title */}
                                 <div className='font-medium text-lg flex gap-1 items-center'>
@@ -55,8 +95,15 @@ const Todo = ({ tasks , refetch}) => {
                                     </div>
 
                                     <div className='flex gap-2 items-center'>
-                                        <p><FaPen className='text-green-500 text-sm' /></p>
-                                        <p><MdDeleteForever className='text-lg text-error' /></p>
+                                        {/* Edit Button */}
+                                        <button onClick={() => openModal(task)}>
+                                            <FaPen className='text-green-500 text-sm' />
+                                        </button>
+
+                                        {/* Delete Button */}
+                                        <button onClick={() => handleDelete(task._id)}>
+                                            <MdDeleteForever className='text-lg text-error' />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -71,15 +118,49 @@ const Todo = ({ tasks , refetch}) => {
             {selectedTask && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-bold mb-2">Title : {selectedTask.title}</h2>
-                        <p className="text-gray-700">Description : {selectedTask.description || "No description available"}</p>
-                        
-                        <button
-                            onClick={closeModal}
-                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md"
-                        >
-                            Close
-                        </button>
+                        <h2 className="text-xl font-bold mb-2">Edit Task</h2>
+
+                        {/* Title Input */}
+                        <div className="mb-4">
+                            <label htmlFor="title" className="block text-gray-700 font-semibold">Title</label>
+                            <input
+                                id="title"
+                                type="text"
+                                required
+                                value={updatedTitle}
+                                onChange={handleTitleChange}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+
+                        {/* Description Input */}
+                        <div className="mb-4">
+                            <label htmlFor="description" className="block text-gray-700 font-semibold">Description</label>
+                            <textarea
+                                id="description"
+                                value={updatedDescription}
+                                required
+                                onChange={handleDescriptionChange}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                                rows="4"
+                            />
+                        </div>
+
+                        {/* Modal Buttons */}
+                        <div className="flex justify-between">
+                            <button
+                                onClick={closeModal}
+                                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={handleUpdate}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                            >
+                                Update
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
