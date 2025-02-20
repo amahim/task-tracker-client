@@ -6,7 +6,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { TbSubtask } from 'react-icons/tb';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 
 const Done = ({ tasks, refetch }) => {
     const [selectedTask, setSelectedTask] = useState(null);
@@ -52,30 +52,6 @@ const Done = ({ tasks, refetch }) => {
         });
     };
 
-    const handleDragEnd = async (result) => {
-        if (!result.destination) return;
-
-        const items = Array.from(tasks);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-
-        const updatedOrder = items.map((task, index) => ({
-            id: task._id,
-            order: index
-        }));
-
-        try {
-            const loadingToast = toast.loading('Reordering tasks...');
-            await axios.put('http://localhost:5000/tasks/reorder', { tasks: updatedOrder });
-            toast.dismiss(loadingToast);
-            toast.success("Tasks reordered successfully");
-            refetch();
-        } catch (error) {
-            toast.error("Failed to reorder tasks");
-            refetch();
-        }
-    };
-
     return (
         <div className='md:w-2/6'>
             <div className="text-xl md:text-2xl text-green-600 lg:text-3xl font-bold flex justify-center items-center gap-2 mb-5">
@@ -83,60 +59,64 @@ const Done = ({ tasks, refetch }) => {
                 <p>Done</p>
             </div>
 
-            <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="done-tasks">
-                    {(provided) => (
-                        <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            className="space-y-4"
-                        >
-                            {tasks?.map((task, index) => (
-                                <Draggable key={task._id} draggableId={task._id} index={index}>
-                                    {(provided) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            className='border-2 border-green-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col shadow-[0px_4px_10px_rgba(34,197,94,10)] mb-4'
-                                        >
-                                            <div className='font-medium text-lg flex gap-1 items-center'>
-                                                <TbSubtask />
-                                                <span>{task.title}</span>
+            <Droppable droppableId="done">
+                {(provided) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-4"
+                    >
+                        {tasks?.map((task, index) => (
+                            <Draggable
+                                key={task._id}
+                                draggableId={task._id}
+                                index={index}
+                            >
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className={`border-2 border-green-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col shadow-[0px_4px_10px_rgba(34,197,94,10)] ${
+                                            snapshot.isDragging ? 'opacity-75' : ''
+                                        }`}
+                                    >
+                                        <div className='font-medium text-lg flex gap-1 items-center'>
+                                            <p><TbSubtask /></p>
+                                            <p>{task.title}</p>
+                                        </div>
+
+                                        <div className='text-md flex gap-1 items-center'>
+                                            <p><FaRegClock /></p>
+                                            <p>{moment(task.timestamp).format('MMM D YYYY')}</p>
+                                        </div>
+
+                                        <div className='flex justify-between items-center'>
+                                            <div
+                                                className='flex gap-1 items-center text-info cursor-pointer'
+                                                onClick={() => openModal(task)}
+                                            >
+                                                <p><FaEye /></p>
+                                                <p>Description</p>
                                             </div>
 
-                                            <div className='text-md flex gap-1 items-center'>
-                                                <FaRegClock />
-                                                <span>{moment(task.timestamp).format('MMM D YYYY')}</span>
-                                            </div>
-
-                                            <div className='flex justify-between items-center'>
-                                                <div
-                                                    className='flex gap-1 items-center text-info cursor-pointer'
-                                                    onClick={() => openModal(task)}
-                                                >
-                                                    <FaEye />
-                                                    <span>Description</span>
-                                                </div>
-
-                                                <div className='flex gap-2 items-center'>
-                                                    <button onClick={() => openModal(task)}>
-                                                        <FaPen className='text-green-500 text-sm' />
-                                                    </button>
-                                                    <button onClick={() => handleDelete(task._id)}>
-                                                        <MdDeleteForever className='text-lg text-error' />
-                                                    </button>
-                                                </div>
+                                            <div className='flex gap-2 items-center'>
+                                                <button onClick={() => openModal(task)}>
+                                                    <FaPen className='text-green-500 text-sm' />
+                                                </button>
+                                                <button onClick={() => handleDelete(task._id)}>
+                                                    <MdDeleteForever className='text-lg text-error' />
+                                                </button>
                                             </div>
                                         </div>
-                                    )}
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
 
             {/* Modal */}
             {selectedTask && (

@@ -6,7 +6,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { TbSubtask } from 'react-icons/tb';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 
 const Todo = ({ tasks, refetch }) => {
     const [selectedTask, setSelectedTask] = useState(null);
@@ -30,58 +30,33 @@ const Todo = ({ tasks, refetch }) => {
     const handleDescriptionChange = (e) => setUpdatedDescription(e.target.value);
 
     // Handle updating the task
-    const handleUpdate = async () => {
-        try {
-            await axios.put(`http://localhost:5000/tasks/${selectedTask._id}`, {
+    const handleUpdate = () => {
+        axios
+            .put(`http://localhost:5000/tasks/${selectedTask._id}`, {
                 title: updatedTitle,
                 description: updatedDescription
+            })
+            .then((res) => {
+                toast.success("Task updated successfully");
+                refetch();  // Refetch tasks to reflect the updated task
+                closeModal();  // Close the modal after updating
+            })
+            .catch((err) => {
+                toast.error("Failed to update task");
             });
-            toast.success("Task updated successfully");
-            await refetch();
-            closeModal();
-        } catch (err) {
-            toast.error("Failed to update task");
-        }
     };
 
     //   delete
-    const handleDelete = async (taskId) => {
-        try {
-            await axios.delete(`http://localhost:5000/tasks/${taskId}`);
-            await refetch();
-            toast.success("Task deleted successfully");
-        } catch (err) {
-            toast.error("Failed to delete task");
-        }
-    };
-
-    const handleDragEnd = async (result) => {
-        if (!result.destination) return;
-
-        try {
-            const items = Array.from(tasks);
-            const [reorderedItem] = items.splice(result.source.index, 1);
-            items.splice(result.destination.index, 0, reorderedItem);
-
-            const updatedOrder = items.map((task, index) => ({
-                id: task._id,
-                order: index
-            }));
-
-            const loadingToast = toast.loading('Reordering tasks...');
-
-            await axios.put('http://localhost:5000/tasks/reorder', { 
-                tasks: updatedOrder 
+    const handleDelete = (taskId) => {
+        axios
+            .delete(`http://localhost:5000/tasks/${taskId}`)
+            .then((res) => {
+                refetch();
+                toast.success("Task deleted successfully");
+            })
+            .catch((err) => {
+                toast.error("Failed to delete task");
             });
-
-            toast.dismiss(loadingToast);
-            toast.success("Tasks reordered successfully");
-            await refetch();
-        } catch (error) {
-            console.error('Reorder error:', error);
-            toast.error("Failed to reorder tasks");
-            await refetch();
-        }
     };
 
     return (
@@ -92,66 +67,70 @@ const Todo = ({ tasks, refetch }) => {
                 <p>To-Do</p>
             </div>
 
-            <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="todos">
-                    {(provided) => (
-                        <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            className="space-y-4"
-                        >
-                            {tasks?.map((task, index) => (
-                                <Draggable
-                                    key={task._id}
-                                    draggableId={task._id}
-                                    index={index}
-                                >
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            className={`border-2 border-red-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col shadow-[0px_4px_10px_rgba(239,68,68,10)] ${
-                                                snapshot.isDragging ? 'opacity-75' : ''
-                                            }`}
-                                        >
-                                            <div className='font-medium text-lg flex gap-1 items-center'>
-                                                <TbSubtask />
-                                                <span>{task.title}</span>
+            <Droppable droppableId="todo">
+                {(provided) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-4"
+                    >
+                        {tasks?.map((task, index) => (
+                            <Draggable
+                                key={task._id}
+                                draggableId={task._id}
+                                index={index}
+                            >
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        className={`border-2 border-red-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col shadow-[0px_4px_10px_rgba(239,68,68,10)] ${
+                                            snapshot.isDragging ? 'opacity-75' : ''
+                                        }`}
+                                    >
+                                        {/* Title */}
+                                        <div className='font-medium text-lg flex gap-1 items-center'>
+                                            <p><TbSubtask /></p>
+                                            <p>{task.title}</p>
+                                        </div>
+
+                                        {/* Time */}
+                                        <div className='text-md flex gap-1 items-center'>
+                                            <p><FaRegClock /></p>
+                                            <p>{moment(task.timestamp).format('MMM D YYYY')}</p>
+                                        </div>
+
+                                        <div className='flex justify-between items-center'>
+                                            {/* Description Button */}
+                                            <div
+                                                className='flex gap-1 items-center text-info cursor-pointer'
+                                                onClick={() => openModal(task)}
+                                            >
+                                                <p><FaEye /></p>
+                                                <p> Description</p>
                                             </div>
 
-                                            <div className='text-md flex gap-1 items-center'>
-                                                <FaRegClock />
-                                                <span>{moment(task.timestamp).format('MMM D YYYY')}</span>
-                                            </div>
+                                            <div className='flex gap-2 items-center'>
+                                                {/* Edit Button */}
+                                                <button onClick={() => openModal(task)}>
+                                                    <FaPen className='text-green-500 text-sm' />
+                                                </button>
 
-                                            <div className='flex justify-between items-center'>
-                                                <div
-                                                    className='flex gap-1 items-center text-info cursor-pointer'
-                                                    onClick={() => openModal(task)}
-                                                >
-                                                    <FaEye />
-                                                    <span>Description</span>
-                                                </div>
-
-                                                <div className='flex gap-2 items-center'>
-                                                    <button onClick={() => openModal(task)}>
-                                                        <FaPen className='text-green-500 text-sm' />
-                                                    </button>
-                                                    <button onClick={() => handleDelete(task._id)}>
-                                                        <MdDeleteForever className='text-lg text-error' />
-                                                    </button>
-                                                </div>
+                                                {/* Delete Button */}
+                                                <button onClick={() => handleDelete(task._id)}>
+                                                    <MdDeleteForever className='text-lg text-error' />
+                                                </button>
                                             </div>
                                         </div>
-                                    )}
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
 
             {/* Modal */}
             {selectedTask && (
