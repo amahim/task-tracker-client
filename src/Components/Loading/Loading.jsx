@@ -1,7 +1,7 @@
 const Loading = () => {
     return (
       <div className="flex min-h-screen justify-center items-center">
-        <span className="loading loading-spinner loading-lg text-[#b0ee90]"></span>
+        <span className="loading loading-spinner loading-lg text-[#030303]"></span>
       </div>
     );
   };
