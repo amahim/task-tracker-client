@@ -33,26 +33,28 @@ const Todo = ({ tasks, refetch }) => {
   const handleUpdate = () => {
     axios
       .put(
-        `https://task-tracker-server-iota.vercel.app/tasks/${selectedTask._id}`,
+        `http://localhost:5000/tasks/${selectedTask._id}?addedBy=${selectedTask.addedBy}`,
         {
           title: updatedTitle,
           description: updatedDescription,
+          category: selectedTask.category,
+          addedBy: selectedTask.addedBy,
         }
       )
       .then((res) => {
         toast.success("Task updated successfully");
-        refetch(); // Refetch tasks to reflect the updated task
-        closeModal(); // Close the modal after updating
+        refetch();
+        closeModal();
       })
       .catch((err) => {
         toast.error("Failed to update task");
       });
   };
 
-  //   delete
-  const handleDelete = (taskId) => {
+  // delete
+  const handleDelete = (taskId, addedBy) => {
     axios
-      .delete(`https://task-tracker-server-iota.vercel.app/tasks/${taskId}`)
+      .delete(`http://localhost:5000/tasks/${taskId}?addedBy=${addedBy}`)
       .then((res) => {
         refetch();
         toast.success("Task deleted successfully");
@@ -87,7 +89,7 @@ const Todo = ({ tasks, refetch }) => {
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     className={`border-2 border-red-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col 
-                                            shadow-[0px_4px_10px_rgba(239,68,68,0.2)] 
+                                            shadow-[0px_4px_10px_rgba(239,68,68,10)] 
                                             ${
                                               snapshot.isDragging
                                                 ? "opacity-75"
@@ -129,7 +131,9 @@ const Todo = ({ tasks, refetch }) => {
                         </button>
 
                         {/* Delete Button */}
-                        <button onClick={() => handleDelete(task._id)}>
+                        <button
+                          onClick={() => handleDelete(task._id, task.addedBy)}
+                        >
                           <MdDeleteForever className="text-lg text-error" />
                         </button>
                       </div>

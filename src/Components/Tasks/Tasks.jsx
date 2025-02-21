@@ -7,6 +7,8 @@ import { AuthContext } from "../Provider/AuthProvider";
 import { BiTask } from "react-icons/bi";
 import AllTasks from "./AllTasks";
 import useTasks from "../Hooks/useTasks";
+import { IoLogOutOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 const Tasks = () => {
   const {
     register,
@@ -14,9 +16,10 @@ const Tasks = () => {
     formState: { errors },
     reset,
   } = useForm();
-  const { user } = useContext(AuthContext);
+  const { user,logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [, refetch] = useTasks();
+  const navigate = useNavigate()
   // Function to handle form submission
   const onSubmit = async (data) => {
     if (!data.title || !data.category) {
@@ -32,10 +35,7 @@ const Tasks = () => {
     };
 
     try {
-      const res = await axios.post(
-        "https://task-tracker-server-iota.vercel.app/tasks",
-        taskData
-      );
+      const res = await axios.post("http://localhost:5000/tasks", taskData);
       if (res.data.insertedId) {
         toast.success("Task added successfully!");
         reset();
@@ -48,16 +48,38 @@ const Tasks = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout()
+      .then(() => {
+        toast.success("Successfully logged out!");
+        navigate("/")
+      })
+      .catch((err) => {
+        toast.error("Failed to log out. Please try again.");
+      });
+  };
+
   return (
     <div className="w-4/5 mx-auto py-10">
       {/* Title Section */}
-      <div className="flex items-center gap-4 justify-center mb-8">
-        <p className="text-2xl md:text-4xl lg:text-6xl font-bold">
-          <FaTasks />
-        </p>
-        <p className="text-2xl md:text-4xl lg:text-6xl font-bold">
-          Track Your Task
-        </p>
+      <div className="flex justify-between ">
+              <div className="flex items-center gap-4 justify-center mb-8">
+                <p className="text-2xl md:text-4xl lg:text-6xl font-bold">
+                  <FaTasks />
+                </p>
+                <p className="text-2xl md:text-4xl lg:text-6xl font-bold">
+                  Track Your Task
+                </p>
+              </div>
+              {/* logout */}
+
+              <div>
+                <button 
+                  onClick={()=> handleLogout()}
+                >
+                <IoLogOutOutline  className="text-4xl font-bold"/>
+                </button>
+              </div>
       </div>
 
       {/* Add Task Button */}

@@ -28,13 +28,12 @@ const InProgress = ({ tasks, refetch }) => {
 
   const handleUpdate = () => {
     axios
-      .put(
-        `https://task-tracker-server-iota.vercel.app/tasks/${selectedTask._id}`,
-        {
-          title: updatedTitle,
-          description: updatedDescription,
-        }
-      )
+      .put(`http://localhost:5000/tasks/${selectedTask._id}?addedBy=${selectedTask.addedBy}`, {
+        title: updatedTitle,
+        description: updatedDescription,
+        category: selectedTask.category,
+        addedBy: selectedTask.addedBy,
+      })
       .then(() => {
         toast.success("Task updated successfully");
         refetch();
@@ -45,9 +44,9 @@ const InProgress = ({ tasks, refetch }) => {
       });
   };
 
-  const handleDelete = (taskId) => {
+  const handleDelete = (taskId, addedBy) => {
     axios
-      .delete(`https://task-tracker-server-iota.vercel.app/tasks/${taskId}`)
+      .delete(`http://localhost:5000/tasks/${taskId}?addedBy=${addedBy}`)
       .then(() => {
         refetch();
         toast.success("Task deleted successfully");
@@ -109,7 +108,7 @@ const InProgress = ({ tasks, refetch }) => {
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     className={`border-2 border-blue-200 bg-slate-200 p-2 rounded-md flex gap-2 flex-col 
-                                          shadow-[0px_4px_10px_rgba(59,130,246,0.2)] 
+                                          shadow-[0px_4px_10px_rgba(59,130,246,10)] 
                                           ${
                                             snapshot.isDragging
                                               ? "opacity-75"
@@ -146,7 +145,7 @@ const InProgress = ({ tasks, refetch }) => {
                           <FaPen className="text-green-500 text-sm" />
                         </button>
 
-                        <button onClick={() => handleDelete(task._id)}>
+                        <button onClick={() => handleDelete(task._id, task.addedBy)}>
                           <MdDeleteForever className="text-lg text-error" />
                         </button>
                       </div>

@@ -33,7 +33,7 @@ const Login = () => {
 
         // Store the user in the database
         axios
-          .post("https://task-tracker-server-iota.vercel.app/users", userInfo)
+          .post("http://localhost:5000/users", userInfo)
           .then((res) => {
             if (res.data.insertedId) {
               // console.log("User stored in database:", res.data);
